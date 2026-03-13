@@ -1,57 +1,4 @@
-# APT-Transformer
-
-A transformer-based framework for detecting Advanced Persistent Threats (APTs) in system audit logs. The pipeline processes raw DARPA TC3 provenance data, builds semantic token trees from file paths, and trains a transformer encoder to classify log sequences as benign or attack.
-
-## Pipeline Overview
-
-```
-Raw DARPA TC3 Logs
-        │
-        ▼
- 1. darpa_tc3_convert        ──  Parse raw audit logs into structured format
-        │
-        ▼
- 2. graph_data_process/      ──  Merge GraphChi sketch vectors with logs
-        │
-        ▼
- 3. sample_train_test        ──  Split data into train/test sets
-        │
-        ▼
- 4. generate_token_tree/     ──  Build hierarchical token tree from file paths
-        │
-        ▼
- 5. tokenize_train_test/     ──  Tokenize logs and resample for class balance
-        │
-        ▼
- 6. train/                   ──  Train and evaluate the transformer classifier
-```
-
-## Project Structure
-
-```
-├── generate_token_tree/       # Semantic tokenization tree construction
-│   ├── nlp_stem.py            # Extract unique actions/objects from logs via NLTK
-│   ├── tree_from_path.py      # Build hierarchical tree from file paths
-│   └── object_data/           # Per-dataset action and object vocabularies
-│
-├── graph_data_process/        # Sketch data integration
-│   └── map_sketch_raw_data.py # Merge GraphChi sketch vectors with raw logs
-│
-├── tokenize_train_test/       # Log tokenization and data preparation
-│   ├── token_and_resample.py  # Tokenize, chunk sequences, resample train/test
-│   ├── semi_token_and_resample.py  # Semi-supervised variant with pseudo-labels
-│   └── fast_token_utils.py    # Core tokenization utilities (tree lookup, hashing)
-│
-└── train/                     # Model training and evaluation
-    ├── train.py               # Training loop (AdamW, self-training, F1 selection)
-    ├── config.py              # Dataset paths and hyperparameters
-    ├── ClassificationModel.py # Token/positional embedding → transformer → classifier
-    ├── MyTransformer.py       # Custom transformer encoder with multi-head attention
-    ├── Embedding.py           # Positional encoding and token embedding layers
-    ├── data_helper.py         # JSON data loading and DataLoader construction
-    ├── test_log.py            # Threshold sweep evaluation, outputs CSV
-    └── test_roc.py            # ROC and precision-recall curve generation
-```
+# Tidal: Tackling Concept Drift in Provenance-based Advanced Persistent Threats Detection
 
 ## Requirements
 
@@ -76,10 +23,6 @@ pip install torch pandas numpy tqdm nltk scikit-learn matplotlib
 
 Convert raw DARPA TC3 audit logs into the structured format (`srcUUID  dstUUID  action  target  timestamp`):
 
-```bash
-# Use the darpa_tc3_convert tool (external)
-```
-
 ### 2. Merge Sketch Data
 
 Combine GraphChi sketch vectors with the processed logs:
@@ -90,10 +33,6 @@ python map_sketch_raw_data.py
 ```
 
 ### 3. Split Train and Test
-
-```bash
-# Use the sample_train_test tool (external)
-```
 
 ### 4. Generate Token Tree
 
@@ -155,16 +94,6 @@ The classifier follows an encoder-only transformer design:
 4. **Pooling** — sum/average over sequence length
 5. **Graph Embedding Fusion** — optional concatenation of node2vec embeddings
 6. **Classifier Head** — binary output (benign vs. attack)
-
-## Supported Datasets
-
-| Dataset     | Source     |
-|-------------|------------|
-| CADETS      | DARPA TC3  |
-| TRACE       | DARPA TC3  |
-| THEIA       | DARPA TC3  |
-| FiveD       | DARPA TC3  |
-| ClearScope  | DARPA TC3  |
 
 ## Data Format
 
