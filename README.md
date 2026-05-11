@@ -25,7 +25,12 @@ Convert raw DARPA TC3 audit logs into the structured format (`srcUUID  dstUUID  
 
 ### 2. Merge Sketch Data
 
-Combine GraphChi sketch vectors with the processed logs:
+For reproducing the released results, the GraphChi sketch vectors are already
+merged into `train/data/<dataset>/*.json` as `z`. If you run TIDAL on your own
+dataset, generate the sketch files with the modified GraphChi implementation
+from https://github.com/crimson-unicorn, then merge them with the processed
+logs. The `sketch_toy.zip` files are the precomputed `sketch-toy-*.txt`
+GraphChi sketch outputs:
 
 ```bash
 cd graph_data_process
@@ -33,6 +38,9 @@ python map_sketch_raw_data.py
 ```
 
 ### 3. Split Train and Test
+
+For reproduction, the released train/test data are already provided as JSON
+files under `train/data/<dataset>/`.
 
 ### 4. Generate Token Tree
 
@@ -92,7 +100,7 @@ The classifier follows an encoder-only transformer design:
 2. **Positional Encoding** — injects sequence position information
 3. **Transformer Encoder** — multi-head self-attention over the log sequence
 4. **Pooling** — sum/average over sequence length
-5. **Graph Embedding Fusion** — optional concatenation of node2vec embeddings
+5. **Graph Sketch Fusion** — optional concatenation of GraphChi sketch vectors
 6. **Classifier Head** — binary output (benign vs. attack)
 
 ## Data Format
@@ -107,4 +115,4 @@ srcUUID    dstUUID    action    target    timestamp
 
 - `x` — list of token sequences (list of int lists)
 - `y` — binary labels (`0` = benign, `1` = attack)
-- `z` — node2vec graph embeddings per sequence
+- `z` — GraphChi sketch vector per sequence
